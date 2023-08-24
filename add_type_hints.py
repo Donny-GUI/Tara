@@ -1,6 +1,8 @@
 import ast
 import astor
 import pickle
+import sys 
+import os
 
 
 
@@ -123,9 +125,19 @@ def add_type_hints(file_path):
     
     modified_code = astor.to_source(tree)
     print(modified_code)
+    file = os.path.basename(file_path)
+    file = os.path.dirname(file_path) + "typed_" + file
+    with open(file, "w") as f:
+        f.write(modified_code)
 
+if __name__ == "__main__":
 
-
-add_type_hints("tk_to_ctk.py")
+    try:
+        args = sys.argv[1:]
+    except IndexError:
+        print("usage: python add_type_hints.py <input file>")
+        exit()
+    for arg in args:
+        add_type_hints(arg)
 
 
