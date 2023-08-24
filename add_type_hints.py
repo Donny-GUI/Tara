@@ -126,15 +126,15 @@ def add_type_hints(file_path):
     modified_code = astor.to_source(tree)
     print(modified_code)
     file = os.path.basename(file_path)
-    file = os.path.dirname(file_path) + "typed_" + file
+    file = os.path.dirname(file_path) + "\\typed_" + file
     with open(file, "w") as f:
         f.write(modified_code)
 
 if __name__ == "__main__":
-
-    try:
-        args = sys.argv[1:]
-    except IndexError:
+    print("type hint writer")
+    args = sys.argv[1:]
+        
+    if args == []:
         print("usage: python add_type_hints.py <input file>")
         exit()
     for arg in args:
