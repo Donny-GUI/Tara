@@ -43,7 +43,7 @@ def determine_variable_type(value:str):
     
 
 
-def find_string_variables_in_python_files(directory):
+def find_string_variables_in_python_files():
     string_variables = {}
     int_variables = {}
     float_variables = {}
@@ -188,4 +188,4 @@ def add_type_hints_and_return(func_str):
     return func_str
 
 
-find_string_variables_in_python_files("C:\\")
+# find_string_variables_in_python_files()

@@ -60,29 +60,6 @@ def find_returned_variables_and_types(func):
     visitor.visit(func)
     return returned_variables
 
-def get_return_nodes_and_types(func):
-    return_nodes = []
-
-    # Define a visitor class to traverse the AST
-    class ReturnVisitor(ast.NodeVisitor):
-        def visit_Return(self, node):
-            return_nodes.append(node)
-
-    # Create an instance of the visitor and visit the AST
-    visitor = ReturnVisitor()
-    visitor.visit(func)
-
-    # Get the types of what each return node returns
-    return_types = []
-    for return_node in return_nodes:
-        if return_node.value:
-            return_type = ast.dump(return_node.value)
-        else:
-            return_type = "NoneType"
-        return_types.append(return_type)
-
-    return return_nodes, return_types
-
 def add_type_hints(file_path):
     with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
         code = file.read()
@@ -142,9 +119,6 @@ def cli():
         add_type_hints(arg)
 
 
-
 if __name__ == "__main__":
     cli()
-
-
 
