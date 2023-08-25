@@ -105,8 +105,6 @@ def find_string_variables_in_python_files(directory):
                                 variables_processed+=1
                                 has_determined.append(name)
 
-
-
     filetargets = []    
     for root, dirs, files in os.walk("C:\\Program Files\\Python311\\"):
         for file_name in files:
@@ -124,7 +122,7 @@ def find_string_variables_in_python_files(directory):
     all_vars = [string_variables, int_variables, dict_variables, list_variables, float_variables, boolean_variables, bytes_variables]
     all_var_names = ["string_variables", "int_variables", "dict_variables", "list_variables", "float_variables", "boolean_variables", "bytes_variables"]
     for index, vs in enumerate(all_vars):
-        name = all_var_names[index] + ".pkl"
+        name = os.getcwd() + os.sep + "data" + os.sep + all_var_names[index] + ".pkl"
         try:
             with open(name, 'rb') as f:
                 data = pickle.load(f)
@@ -136,7 +134,6 @@ def find_string_variables_in_python_files(directory):
             pickle.dump(vs, f)
     print("variables processed successfully: ", variables_processed)
     cleanup()
-
 
 def cleanup():
     print("cleaning up...")

@@ -1,12 +1,26 @@
 import ast
+import pickle
 import sys 
 import os
-from util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
 
 
 selfflag = False
-all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
 
+
+with open('boolean_variables.pkl', 'rb') as file:
+    boolean_dict = pickle.load(file)
+with open('bytes_variables.pkl', 'rb') as file:
+    bytes_dict = pickle.load(file)
+with open('dict_variables.pkl', 'rb') as file:
+    dict_dict = pickle.load(file)
+with open('int_variables.pkl', 'rb') as file:
+    int_dict = pickle.load(file)
+with open('list_variables.pkl', 'rb') as file:
+    list_dict = pickle.load(file)
+with open('string_variables.pkl', 'rb') as file:
+    string_dict = pickle.load(file)
+
+all_dicts = [string_dict, int_dict, boolean_dict, list_dict, dict_dict, bytes_dict]
 
 def find_type(name: str):
     if name == "self":
@@ -86,13 +100,11 @@ def get_return_nodes_and_types(func):
 def add_type_hints(file_path):
     with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
         code = file.read()
-
     try:tree = ast.parse(code)
     except SyntaxError:
         print(file_path)
         print("Syntax Error exists in file, skipping...")
         return
-    
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef):
             for arg in node.args.args:
@@ -113,8 +125,6 @@ def add_type_hints(file_path):
                             willreturn.append(x)
                             return_string+=x+"|"
                     node.returns = " "+return_string[:-1]
-
-    
     try:modified_code = ast.unparse(tree)
     except AttributeError:
         print(file_path)
@@ -123,28 +133,45 @@ def add_type_hints(file_path):
     file = os.path.basename(file_path)
     example_dir = os.getcwd() + os.sep + "examples"
     example = example_dir + os.sep + file
-    with open(example, "wb") as f:
-        global selfflag
-        if selfflag is True:
-            f.write("from typing import Self\n".encode())
-        f.write(modified_code.encode())
-
+    modified_lines = modified_code.split("\n")
+    lines = code.split("\n")
+    for index, line in enumerate(lines):
+        try:    
+            if line != modified_lines[index]:
+                print(line, modified_lines[index])
+        except:
+            pass 
 
 def cli():
-    
     print("type hint writer")
     args = sys.argv[1:]
-        
     if args == []:
         print("usage: python add_type_hints.py <input file>")
         exit()
     for arg in args:
         add_type_hints(arg)
 
+class PythonFileAdder(object):
+    def __init__(self) -> None:
+        self.iter = self.initilize()
 
+    def execute(self):
+        p = next(self.iter)
+        print(p)
+        add_type_hints(p)
+        input("Ready for next file .....")
+        self.execute()
+
+    def initilize(self):
+        for root, dirs, files in os.walk("C:\\Program Files\\Python311\\"):
+            for file in files:
+                if file.endswith(".py"):
+                    path = os.path.join(root, file)
+                    yield path
 
 if __name__ == "__main__":
-    cli()
 
-
+    pfa = PythonFileAdder()
+    pfa.execute()
+    
 
