@@ -3,7 +3,7 @@ import pickle
 
 
 def import_lists():
-    with open(os.getcwd()+os.sep+"data"+os.sep+"list_variables.pkl", "r") as f:
+    with open(os.getcwd()+os.sep+"data"+os.sep+"list_variables.pkl", "rb") as f:
         return pickle.load(f)
 
 def import_booleans():
