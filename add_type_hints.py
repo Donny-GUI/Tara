@@ -8,6 +8,14 @@ selfflag = False
 all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
 
 
+
+
+def make_type_representation(type:str):
+    if type == "call":
+        type = "any"
+    return ast.Name(id=type, ctx=ast.Load())
+
+
 def find_type(name: str):
     if name == "self":
         global selfflag
@@ -77,20 +85,13 @@ def add_type_hints(file_path):
                     arg_type_hint = find_type(ast.unparse(arg))
                     arg_type_hint_node = ast.Name(id=arg_type_hint, ctx=ast.Load())
                     arg.annotation = arg_type_hint_node
-            # get the return types here
-            if node.returns is None:
-                rnodes = find_returned_variables_and_types(node)
-                willreturn = []
-                if rnodes == {}:
-                    node.returns = " None"
-                else:
-                    return_string = ""
-                    for x in rnodes.values():
-                        if x not in willreturn:
-                            willreturn.append(x)
-                            return_string+=x+"|"
-                    node.returns = " "+return_string[:-1]
-
+            if node.returns == None:
+                returned = find_returned_variables_and_types(node)
+                if returned == {}:
+                    node.returns = make_type_representation("None")
+                if not returned == {}:
+                    node.returns = [make_type_representation(x) for x in returned.values()]
+                print(node.returns)
     
     try:modified_code = ast.unparse(tree)
     except AttributeError:
@@ -100,6 +101,7 @@ def add_type_hints(file_path):
     file = os.path.basename(file_path)
     example_dir = os.getcwd() + os.sep + "examples"
     example = example_dir + os.sep + file
+    os.makedirs(example_dir, exist_ok=True)
     with open(example, "wb") as f:
         global selfflag
         if selfflag is True:
@@ -108,7 +110,7 @@ def add_type_hints(file_path):
 
 
 def cli():
-    
+
     print("type hint writer")
     args = sys.argv[1:]
         
@@ -118,7 +120,5 @@ def cli():
     for arg in args:
         add_type_hints(arg)
 
-
 if __name__ == "__main__":
     cli()
-
