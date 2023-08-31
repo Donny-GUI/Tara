@@ -4,6 +4,7 @@
 # AFTER
 ![after](https://github.com/Donny-GUI/variable_type_hint_writer/assets/108424001/5207c1e5-3114-4d5f-99e3-239cbe091b36)
 
+![after](https://github.com/Donny-GUI/variable_type_hint_writer/assets/108424001/dc97553a-e715-44cf-a013-1c6b44501535)
 
 # variable_type_hint_writer
 This python script automatically writes type hints with large language models and return types using Ast analysis.. 
