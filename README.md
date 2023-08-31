@@ -1,5 +1,6 @@
-# Tara ✨
-Type And Return Automater
+![tara](https://github.com/Donny-GUI/Tara/assets/108424001/709a3cd6-cbcf-4ea1-a2f2-74dd840744c9)
+![automata](https://github.com/Donny-GUI/Tara/assets/108424001/225ee89d-01ba-4a69-b8d6-076dbe405930)
+
 
 ## Description
 Automate python type hints for params and return values
