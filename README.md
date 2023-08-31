@@ -1,5 +1,7 @@
 # Tara ✨
 
+# Type And Return Type Automator
+
 # BEFORE 📷
 ![before](https://github.com/Donny-GUI/variable_type_hint_writer/assets/108424001/de9d19c6-e5b5-4b6f-9917-d930860a9052)
 
