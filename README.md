@@ -1,8 +1,6 @@
 ![tara](https://github.com/Donny-GUI/Tara/assets/108424001/709a3cd6-cbcf-4ea1-a2f2-74dd840744c9)
 ![automata](https://github.com/Donny-GUI/Tara/assets/108424001/d29a8073-6e9f-4aee-863e-99c8602fe44a)
 
-
-## Description
 Automate python type hints for params and return values
 
 ## Getting Started
