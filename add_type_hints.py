@@ -85,6 +85,7 @@ def add_type_hints(file_path):
                     arg_type_hint = find_type(ast.unparse(arg))
                     arg_type_hint_node = ast.Name(id=arg_type_hint, ctx=ast.Load())
                     arg.annotation = arg_type_hint_node
+<<<<<<< Updated upstream
             if node.returns == None:
                 returned = find_returned_variables_and_types(node)
                 if returned == {}:
@@ -92,6 +93,22 @@ def add_type_hints(file_path):
                 if not returned == {}:
                     node.returns = [make_type_representation(x) for x in returned.values()]
                 print(node.returns)
+=======
+            # get the return types here
+            if node.returns is None:
+                rnodes = find_returned_variables_and_types(node)
+                willreturn = []
+                if rnodes == {}:
+                    node.returns = " None"
+                else:
+                    return_string = ""
+                    for x in rnodes.values():
+                        if x not in willreturn:
+                            willreturn.append(x)
+                            return_string+=x+"|"
+                    node.returns = " "+return_string[:-1]
+    
+>>>>>>> Stashed changes
     
     try:modified_code = ast.unparse(tree)
     except AttributeError:
