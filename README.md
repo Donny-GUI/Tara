@@ -1,6 +1,22 @@
 # Tara ✨
+Type And Return Automater
 
-# Type And Return Type Automator
+## Description
+Automate python type hints for params and return values
+
+## Getting Started
+
+#### Windows
+```Powershell
+git clone https://github.com/Donny-GUI/Tara.git
+python add_type_hints.py <yourfile>
+```
+#### Linux
+```Bash
+git clone https://github.com/Donny-GUI/Tara.git
+python3 add_type_hints.py <yourfile>
+```
+
 
 # BEFORE 📷
 ![before](https://github.com/Donny-GUI/variable_type_hint_writer/assets/108424001/de9d19c6-e5b5-4b6f-9917-d930860a9052)
@@ -10,10 +26,6 @@
 ![after](https://github.com/Donny-GUI/variable_type_hint_writer/assets/108424001/dc97553a-e715-44cf-a013-1c6b44501535)
 
 
-Type And Return Automater
-
-## Description
-Automate python type hints for params and return values
 
 ## How?
 Parameters use a mix of symbolic execution, natural language processing and static analysis. Then finally a large language model to find a reasonable type if none is assigned.
