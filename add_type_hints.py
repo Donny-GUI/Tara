@@ -25,6 +25,12 @@ def find_type(name):
             pass
     return "any"
 
+def has_return_statement(node):
+    for subnode in ast.walk(node):
+        if isinstance(subnode, ast.Return):
+            return True
+    return False
+
 def find_returned_variables_and_types(func):
     returned_variables = {}
 
@@ -112,7 +118,8 @@ def add_type_hints(file_path):
                     arg.annotation = arg_type_hint_node
             
             # get the return types here
-            if node.returns is None:
+            if node.returns is None and has_return_statement(node) == True:
+
                 rnodes = find_returned_variables_and_types(node)
                 willreturn = []
                 if rnodes == {}:
@@ -126,8 +133,6 @@ def add_type_hints(file_path):
                         node.returns = string_to_return_value(willreturn[0])
                     else:
                         node.returns = list_to_return_value(willreturn)
-
-    
     
     try:modified_code = ast.unparse(tree)
     except AttributeError:
