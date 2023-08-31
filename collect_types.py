@@ -40,7 +40,8 @@ def determine_variable_type(value:str):
         return "set"
     elif value.startswith("(") and "*+-/" not in value:
         return "tuple"
-    
+
+
 
 
 def find_string_variables_in_python_files():
@@ -75,16 +76,22 @@ def find_string_variables_in_python_files():
             for node in ast.walk(parsed_ast):
                 
                 if isinstance(node, ast.Assign):
+
                     source = ast.unparse(node)
                     objects = [x.strip() for x in source.split("=")]
+
                     if len(objects) > 1:
                         name = objects[0]
                         value = objects[1]
+
                         if name not in has_determined:
                             vartype = determine_variable_type(value)
+
                             if vartype is not None and vartype != "?":
+                                
                                 if vartype == "NoneType":
                                     continue
+                                
                                 match vartype:
                                     case "int":
                                         int_variables[name] = "int"
@@ -102,16 +109,28 @@ def find_string_variables_in_python_files():
                                         bytes_variables[name] = "bytesarray"
                                     case "bool":
                                         boolean_variables[name] = "bool"
+                                    case "tuple":
+                                        tuple_variables[name] = "tuple"
+                                    case "complex":
+                                        complex_variables[name] = "complex"
                                 variables_processed+=1
                                 has_determined.append(name)
 
     filetargets = []    
-    for root, dirs, files in os.walk("C:\\Program Files\\Python311\\"):
+    for root, _, files in os.walk("C:\\Program Files\\Python311\\"):
+        
         for file_name in files:
+            
             if file_name.endswith('.py'):
+                # Skip tests
+                if root.endswith("tests"):
+                    continue
+
                 file_path = os.path.join(root, file_name)
                 filetargets.append(file_path)
+    
     with tqdm(iterable=filetargets, total=len(filetargets), desc="Processing...", unit="file") as pbar:
+        
         for index, ft in enumerate(filetargets):
             pbar.refresh()
             visit_file(ft)

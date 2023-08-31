@@ -1,0 +1,113 @@
+{
+  "_check_methods": {
+    "return_types": "Unknown"
+  },
+  "_exists": {
+    "return_types": "Unknown"
+  },
+  "_get_exports_list": {
+    "return_types": "Unknown"
+  },
+  "execv": {
+    "return_types": "Unknown"
+  },
+  "execve": {
+    "return_types": "Unknown"
+  },
+  "spawnv": {
+    "return_types": "Unknown"
+  },
+  "spawnve": {
+    "return_types": "Unknown"
+  },
+  "makedirs": {
+    "return_types": "Unknown"
+  },
+  "removedirs": {
+    "return_types": "Unknown"
+  },
+  "renames": {
+    "return_types": "Unknown"
+  },
+  "walk": {
+    "return_types": "Unknown"
+  },
+  "_walk": {
+    "return_types": "Unknown"
+  },
+  "execl": {
+    "return_types": "Unknown"
+  },
+  "execle": {
+    "return_types": "Unknown"
+  },
+  "execlp": {
+    "return_types": "Unknown"
+  },
+  "execlpe": {
+    "return_types": "Unknown"
+  },
+  "execvp": {
+    "return_types": "Unknown"
+  },
+  "execvpe": {
+    "return_types": "Unknown"
+  },
+  "_execvpe": {
+    "return_types": "Unknown"
+  },
+  "get_exec_path": {
+    "return_types": "Unknown"
+  },
+  "getenv": {
+    "return_types": "Unknown"
+  },
+  "fsencode": {
+    "return_types": "Unknown"
+  },
+  "fsdecode": {
+    "return_types": "Unknown"
+  },
+  "spawnl": {
+    "return_types": "Unknown"
+  },
+  "spawnle": {
+    "return_types": "Unknown"
+  },
+  "popen": {
+    "return_types": "Unknown"
+  },
+  "fdopen": {
+    "return_types": "Unknown"
+  },
+  "_fspath": {
+    "return_types": "Unknown"
+  },
+  "add_dll_directory": {
+    "return_types": "Unknown"
+  },
+  "original_execl": {
+    "return_types": "Unknown"
+  },
+  "original_execle": {
+    "return_types": "Unknown"
+  },
+  "original_execlp": {
+    "return_types": "Unknown"
+  },
+  "original_execlpe": {
+    "return_types": "Unknown"
+  },
+  "original_execvp": {
+    "return_types": "Unknown"
+  },
+  "original_execvpe": {
+    "return_types": "Unknown"
+  },
+  "original_spawnl": {
+    "return_types": "Unknown"
+  },
+  "original_spawnle": {
+    "return_types": "Unknown"
+  }
+}

@@ -8,13 +8,10 @@ selfflag = False
 all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
 
 
-
-
 def make_type_representation(type:str):
     if type == "call":
         type = "any"
     return ast.Name(id=type, ctx=ast.Load())
-
 
 def find_type(name):
     if name == "self":
@@ -79,20 +76,6 @@ def backup_generate(tree):
                 strings.append(string)
         strings.append(string)
     return "\n".join(strings)
-
-
-class TypeNode:
-    INT = ast.Name(id=int, name="int")
-    STR = ast.Name(id=str, name="str")
-    LIST = ast.Name(id=list, name="list")
-    DICT = ast.Name(id=dict, name="dict")
-    SET = ast.Name(id=set, name="set")
-    NONE = ast.Name(id=None, name="None")
-    ALL = [INT, STR, LIST, DICT, SET]
-    def of(type:str):
-        for t in TypeNode.ALL:
-            if t.name == type:
-                return t
             
 def string_to_return_value(value):
     """ 
@@ -154,7 +137,7 @@ def add_type_hints(file_path):
         modified_code = backup_generate(tree)
         
     file = os.path.basename(file_path)
-    example_dir = os.getcwd() + os.sep + "examples"
+    example_dir = os.getcwd() + os.sep + "output"
     example = example_dir + os.sep + file
     os.makedirs(example_dir, exist_ok=True)
     with open(example, "wb") as f:
@@ -163,17 +146,15 @@ def add_type_hints(file_path):
             f.write("from typing import Self\n".encode())
         f.write(modified_code.encode())
 
-
 def cli():
-
-    print("type hint writer")
     args = sys.argv[1:]
-        
     if args == []:
-        print("usage: python add_type_hints.py <input file>")
+        print("\nType And Return Automate   - Tara\n")
+        print("  usage: \n    python add_type_hints.py <input file>")
         exit()
     for arg in args:
         add_type_hints(arg)
+
 
 if __name__ == "__main__":
     cli()

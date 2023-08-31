@@ -3,7 +3,6 @@ import ast
 import sys
 import os
 from util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
-
 selfflag = False
 all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
 
@@ -120,7 +119,7 @@ def add_type_hints(file_path: str) -> None:
         print('attempting backup generator...')
         modified_code = backup_generate(tree)
     file = os.path.basename(file_path)
-    example_dir = os.getcwd() + os.sep + 'examples'
+    example_dir = os.getcwd() + os.sep + 'output'
     example = example_dir + os.sep + file
     os.makedirs(example_dir, exist_ok=True)
     with open(example, 'wb') as f:
@@ -130,10 +129,10 @@ def add_type_hints(file_path: str) -> None:
         f.write(modified_code.encode())
 
 def cli() -> None:
-    print('type hint writer')
+    print('\nType And Return Automate   - Tara\n')
     args = sys.argv[1:]
     if args == []:
-        print('usage: python add_type_hints.py <input file>')
+        print('  usage: \n    python add_type_hints.py <input file>')
         exit()
     for arg in args:
         add_type_hints(arg)
