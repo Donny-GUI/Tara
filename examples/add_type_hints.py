@@ -1,74 +1,67 @@
+from typing import Self
 import ast
-import sys 
+import sys
 import os
 from util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
-
-
 selfflag = False
 all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
 
-
-
-
-def make_type_representation(type:str):
-    if type == "call":
-        type = "any"
+def make_type_representation(type: str) -> None:
+    if type == 'call':
+        type = 'any'
     return ast.Name(id=type, ctx=ast.Load())
 
-
-def find_type(name):
-    if name == "self":
+def find_type(name: str) -> str:
+    if name == 'self':
         global selfflag
-        selfflag = True   
-        return "Self"
+        selfflag = True
+        return 'Self'
     for dict in all_dicts:
         try:
             return dict[name]
         except:
             pass
-    return "any"
+    return 'any'
 
-def find_returned_variables_and_types(func):
+def find_returned_variables_and_types(func: str) -> dict:
     returned_variables = {}
 
-    # Define a visitor class to traverse the AST
     class VariableVisitor(ast.NodeVisitor):
-        def __init__(self):
+
+        def __init__(self: Self) -> None:
             self.current_scope = {}
             self.visited_nodes = []
 
-        def visit_Assign(self, node):
+        def visit_Assign(self: Self, node: str) -> None:
             for target in node.targets:
                 if isinstance(target, ast.Name):
                     self.current_scope[target.id] = node.value
             self.generic_visit(node)
 
-        def visit_Return(self, node):
+        def visit_Return(self: Self, node: str) -> None:
             if node.value and isinstance(node.value, ast.Name):
                 variable_name = node.value.id
                 if variable_name in self.current_scope:
-                    returned_variables[variable_name] = ast.dump(self.current_scope[variable_name]).split("(")[0].lower()
+                    returned_variables[variable_name] = ast.dump(self.current_scope[variable_name]).split('(')[0].lower()
             elif node.value and isinstance(node.value, ast.Str):
-                returned_variables["str"] = "str"
+                returned_variables['str'] = 'str'
             elif node.value and isinstance(node.value, ast.List):
-                returned_variables["list"] = "list"
+                returned_variables['list'] = 'list'
             elif node.value and isinstance(node.value, ast.Dict):
-                returned_variables["dict"] = "dict"
+                returned_variables['dict'] = 'dict'
             elif node.value and isinstance(node.value, ast.Set):
-                returned_variables["set"] = "set"
+                returned_variables['set'] = 'set'
             elif node.value and isinstance(node.value, ast.Constant):
                 if node.value.value in [True, False]:
-                    returned_variables["bool"] = "bool"
+                    returned_variables['bool'] = 'bool'
                 else:
-                    returned_variables["int"] = "int"
+                    returned_variables['int'] = 'int'
             self.generic_visit(node)
-
-    # Create an instance of the visitor and visit the AST
     visitor = VariableVisitor()
     visitor.visit(func)
     return returned_variables
 
-def backup_generate(tree):
+def backup_generate(tree: str) -> None:
     strings = []
     for x in ast.walk(tree):
         try:
@@ -78,102 +71,84 @@ def backup_generate(tree):
                 string = ast.unparse(subx)
                 strings.append(string)
         strings.append(string)
-    return "\n".join(strings)
-
+    return '\n'.join(strings)
 
 class TypeNode:
-    INT = ast.Name(id=int, name="int")
-    STR = ast.Name(id=str, name="str")
-    LIST = ast.Name(id=list, name="list")
-    DICT = ast.Name(id=dict, name="dict")
-    SET = ast.Name(id=set, name="set")
-    NONE = ast.Name(id=None, name="None")
+    INT = ast.Name(id=int, name='int')
+    STR = ast.Name(id=str, name='str')
+    LIST = ast.Name(id=list, name='list')
+    DICT = ast.Name(id=dict, name='dict')
+    SET = ast.Name(id=set, name='set')
+    NONE = ast.Name(id=None, name='None')
     ALL = [INT, STR, LIST, DICT, SET]
-    def of(type:str):
+
+    def of(type: str) -> None:
         for t in TypeNode.ALL:
             if t.name == type:
                 return t
-            
-def string_to_return_value(value):
+
+def string_to_return_value(value: str) -> None:
     """ 
         example: Union[bool, str]
     """
     return ast.parse(value).body[0].value
 
-def list_to_return_value(list):
-    return ast.parse("|".join(list)).body[0].value
+def list_to_return_value(list: bool) -> None:
+    return ast.parse('|'.join(list)).body[0].value
 
-def add_type_hints(file_path):
-    # open the file and get the content
-    with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
+def add_type_hints(file_path: str) -> None:
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
         code = file.read()
-
-    # attempt to parse the file
-    try:tree = ast.parse(code)
+    try:
+        tree = ast.parse(code)
     except SyntaxError:
         print(file_path)
-        print("Syntax Error exists in file, skipping...")
+        print('Syntax Error exists in file, skipping...')
         return
-    
-    # walk the nodes recursively looking for function definitions
     for node in ast.walk(tree):
-
         if isinstance(node, ast.FunctionDef):
-            # FOUND Function definition
-
-            # Fix the type hints for the params
             for arg in node.args.args:
                 if arg.annotation is None:
                     arg_type_hint = find_type(ast.unparse(arg))
                     arg_type_hint_node = ast.Name(id=arg_type_hint, ctx=ast.Load())
                     arg.annotation = arg_type_hint_node
-            
-            # get the return types here
             if node.returns is None:
                 rnodes = find_returned_variables_and_types(node)
                 willreturn = []
                 if rnodes == {}:
-                    node.returns = string_to_return_value("None")
+                    node.returns = string_to_return_value('None')
                 else:
                     for x in rnodes.values():
                         if x not in willreturn:
                             willreturn.append(x)
-                    
                     if len(willreturn) == 1:
                         node.returns = string_to_return_value(willreturn[0])
                     else:
                         node.returns = list_to_return_value(willreturn)
-
-    
-    
-    try:modified_code = ast.unparse(tree)
+    try:
+        modified_code = ast.unparse(tree)
     except AttributeError:
         print(file_path)
-        print("unable to un parse tree, skipping")
-        print("attempting backup generator...")
+        print('unable to un parse tree, skipping')
+        print('attempting backup generator...')
         modified_code = backup_generate(tree)
-        
     file = os.path.basename(file_path)
-    example_dir = os.getcwd() + os.sep + "examples"
+    example_dir = os.getcwd() + os.sep + 'examples'
     example = example_dir + os.sep + file
     os.makedirs(example_dir, exist_ok=True)
-    with open(example, "wb") as f:
+    with open(example, 'wb') as f:
         global selfflag
         if selfflag is True:
-            f.write("from typing import Self\n".encode())
+            f.write('from typing import Self\n'.encode())
         f.write(modified_code.encode())
 
-
-def cli():
-
-    print("type hint writer")
+def cli() -> None:
+    print('type hint writer')
     args = sys.argv[1:]
-        
     if args == []:
-        print("usage: python add_type_hints.py <input file>")
+        print('usage: python add_type_hints.py <input file>')
         exit()
     for arg in args:
         add_type_hints(arg)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     cli()
