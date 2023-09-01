@@ -23,22 +23,28 @@ def find_type(name: str) -> str:
             pass
     return 'any'
 
+def has_return_statement(node: str) -> bool:
+    for subnode in ast.walk(node):
+        if isinstance(subnode, ast.Return):
+            return True
+    return False
+
 def find_returned_variables_and_types(func: str) -> dict:
     returned_variables = {}
 
     class VariableVisitor(ast.NodeVisitor):
 
-        def __init__(self: Self) -> None:
+        def __init__(self: Self):
             self.current_scope = {}
             self.visited_nodes = []
 
-        def visit_Assign(self: Self, node: str) -> None:
+        def visit_Assign(self: Self, node: str):
             for target in node.targets:
                 if isinstance(target, ast.Name):
                     self.current_scope[target.id] = node.value
             self.generic_visit(node)
 
-        def visit_Return(self: Self, node: str) -> None:
+        def visit_Return(self: Self, node: str):
             if node.value and isinstance(node.value, ast.Name):
                 variable_name = node.value.id
                 if variable_name in self.current_scope:
@@ -98,7 +104,7 @@ def add_type_hints(file_path: str) -> None:
                     arg_type_hint = find_type(ast.unparse(arg))
                     arg_type_hint_node = ast.Name(id=arg_type_hint, ctx=ast.Load())
                     arg.annotation = arg_type_hint_node
-            if node.returns is None:
+            if node.returns is None and has_return_statement(node) == True:
                 rnodes = find_returned_variables_and_types(node)
                 willreturn = []
                 if rnodes == {}:
@@ -128,12 +134,12 @@ def add_type_hints(file_path: str) -> None:
             f.write('from typing import Self\n'.encode())
         f.write(modified_code.encode())
 
-def cli() -> None:
-    print('\nType And Return Automate   - Tara\n')
+def cli():
     args = sys.argv[1:]
     if args == []:
+        print('\nType And Return Automate   - Tara\n')
         print('  usage: \n    python add_type_hints.py <input file>')
-        exit()
+        sys.exit(1)
     for arg in args:
         add_type_hints(arg)
 if __name__ == '__main__':
