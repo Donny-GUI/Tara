@@ -9,11 +9,18 @@ from typing import Optional, Tuple, Union
 import customtkinter as ctk
 from pyautogui import size
 from io import BytesIO
+import importlib
+import pkgutil
+
 
 
 DimGrayRGB = (51, 51, 51)
 DimGrayHTML = "#333333"
 DimGrayName = "dimgray"
+
+keywords0 = ["from", "import", "True", "False", "as", "None"]
+keywords1 = [x for x in keyword.kwlist if x not in keywords0]
+
 
 html_colors = {
     "aliceblue": "#F0F8FF",
@@ -159,6 +166,14 @@ html_colors = {
     "yellowgreen": "#9ACD32",
 }
 
+def list_importable_modules():
+    importable_modules = []
+    
+    for module_info in pkgutil.iter_modules():
+        if module_info.module_finder and module_info.name not in importable_modules:
+            importable_modules.append(module_info.name)
+
+    return importable_modules
 
 def python_builtin_regex():        
     python_builtins = dir(builtins)
@@ -167,16 +182,63 @@ def python_builtin_regex():
     return re.compile(builtins_regex)
 
 def python_keyword_regex():
-    python_keywords = keyword.kwlist
+    python_keywords = keywords1
     keyword_patterns = [rf'\b{re.escape(keyword)}\b' for keyword in python_keywords]
     keywords_regex = '|'.join(keyword_patterns)
     return re.compile(keywords_regex)
 
+def special_keyword_regex():
+    python_keywords = keywords0
+    keyword_patterns = [rf'\b{re.escape(keyword)}\b' for keyword in python_keywords]
+    keywords_regex = '|'.join(keyword_patterns)
+    return re.compile(keywords_regex)
+
+def roundpara_regex():
+    pattern = r'\(|\)'
+    return re.compile(pattern)
+
+def squigpara_regex():
+    pattern = r'\{|\}'
+    return re.compile(pattern)
+
+def quote_regex():
+    pattern = r'"[^"]*"|\'[^\']*\''
+    return re.compile(pattern)
+
+def functions_def_regex():
+    pattern = r'def\s(\w+)\('
+    return re.compile(pattern)
+
+def assignment_regex():
+    pattern = r'(.+?)\s='
+    return re.compile(pattern)
+
+
+
+def exact(integer: int):
+    return tokenize.EXACT_TOKEN_TYPES[integer]
 
 class CodeEditorApp:
     def __init__(self, root):
+        self.modules = list_importable_modules()
+        self.kwregex = python_keyword_regex()
+        self.builtinregex = python_builtin_regex()
+        self.specialregex = special_keyword_regex()
+        self.highlights = ["builtin", "keyword", "special", "bracket1", "bracket2", "quote", "function", "assignment"]
+        self.allpatterns = [self.builtinregex, self.kwregex, self.specialregex, roundpara_regex(), squigpara_regex(), quote_regex(), functions_def_regex(), assignment_regex()]
+        self.keywords_literal = keyword.kwlist 
+        self.builtins_literal = dir(builtins)
+        self.comment_tag = "#"
+        self.multilines = '"""', "'''"
+        self.brackets = "[{]}()"
+        self.digits = '123467890'
+        
+        self.funcs = []
+        self.classes = []
+        self.aliases = []
+
         self.label_style = ttk.Style()
-        self.label_style.configure("Dark.Label", foreground="white", background=DimGrayHTML)
+        self.label_style.configure("Dark.Label", foreground="#FFE4E1", background=DimGrayHTML)
 
         self.size = size()
         self.half_width = self.size.width // 2
@@ -184,16 +246,40 @@ class CodeEditorApp:
         self.root:tk.Tk = root
         self.root.configure(bg="#333333")
         self.root.title("Code Editor")
-        self.root.geometry(f"{self.half_width}x{self.size.height}")
+        self.root.geometry(f"{self.size.width}x{self.size.height}")
+
+        self.textframe_width = int(self.size.width*.08) # 80%
+        self.textframe_height = int(self.size.height*.08)
+        
 
 
-        # Create a Text widget for code editing
-        self.text_widget = tk.Text(root, wrap=tk.WORD, background=DimGrayHTML, foreground="white", font="consolas 12")
-        self.text_widget.pack(fill=tk.BOTH, expand=True)
-
-        self.scrollbar = ttk.Scrollbar(root, command=self.text_widget.yview)
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # TEXT WIDGET
+        self.text_widget = tk.Text(self.root, background=DimGrayHTML, width=self.textframe_width, height=self.textframe_height,  foreground="#FFE4E1", font="consolas 12")
+        self.text_widget.grid(column=0, row=0, sticky="nsew",  padx=0, rowspan=30)
+        
+        
+        self.scrollbar = ttk.Scrollbar(self.root, command=self.text_widget.yview)
+        self.scrollbar.grid(column=1, row=0, sticky="nsew", rowspan=30)
         self.text_widget.config(yscrollcommand=self.scrollbar.set)
+
+
+
+        # Variable Tracking Stuff
+        self.variable_label = tk.Label(self.root, foreground="white", font="consolas 12", background=DimGrayHTML, text="Variables", width =60, height=1)
+        self.variable_label.grid(column=2, row=0,  padx=0, sticky="nsew", rowspan=1)
+
+        self.listbox_vars = []
+        self.variables_listbox = tk.Listbox(self.root, listvariable=self.listbox_vars, foreground="white", background=DimGrayHTML, width=75)
+        self.variables_listbox.grid(column=2, row=1, rowspan=4, sticky="nsew")
+
+        self.text_widget.tag_configure("comment", foreground="#009933")
+        self.text_widget.tag_configure("function", foreground="#e6e619")
+        self.text_widget.tag_configure("keyword", foreground="#a852ff")
+        self.text_widget.tag_configure("special", foreground="#527dff")
+        self.text_widget.tag_configure("bracket1", foreground="yellow")
+        self.text_widget.tag_configure("bracket2", foreground="yellow")
+        self.text_widget.tag_configure("quote", foreground="#d87979")
+        self.text_widget.tag_configure("assignment", foreground="#52d4ff")
 
         # Bind the event to trigger syntax highlighting
         self.text_widget.bind("<KeyRelease>", self.syntaxhighlight)
@@ -221,22 +307,60 @@ class CodeEditorApp:
 
     def syntaxhighlight(self, *args):
         self.code = self.text_widget.get("1.0", tk.END)
-
-        def makecode(code:str):
-            try:
-                stream = BytesIO(code.encode('utf-8'))
-                tokens = list(tokenize.tokenize(stream.readline))
-            except tokenize.TokenError:
-                code = code[:-1]
-                makecode(code)
-            return stream, tokens
-        
-        self.stream, self.tokens = makecode(self.code)
-        for token in self.tokens:
-            print(token.string, end="")
+        self.lines = self.code.split("\n")
+        self.index = 0
+        for line in self.lines:
+            self.index += 1
+            if line.strip().startswith("#"):
+                self.text_widget.tag_add("comment", f"{self.index}.0", f"{self.index}.{len(line)}")
+                continue
             
+            for idx, pat in enumerate(self.allpatterns):
+                matches = re.finditer(pat, line)
+                for match in matches:
+                    self.text_widget.tag_add(self.highlights[idx], f"{self.index}.{match.start()}", f"{self.index}.{match.end()}")
 
+            
+            if self.index < 50:
+                if line.startswith("from "):
+                    values = line.split(" ")
+                    mapping = True if "as" in values else False
+                    if mapping:
+                        self.classes.append(values[3])
+                        self.aliases.append(values[-1])
+                    else:
+                        for index, value in enumerate(values):
+                            if value == "import":
+                                for v in values[index+1:]:
+                                    self.funcs.append(v.strip().strip(","))
+                                break
+                elif line.startswith("import "):
+                    values = line.split(" ")
+                    mapping = True if "as" in values else False
+                    if mapping:
+                        asindex = values.index("as")
+                        name = values[1:asindex]
+                        alias = values[asindex+1:]
+                        self.classes.append(name)
+                        self.aliases.append(alias)
+                    else:
+                        for index, value in enumerate(line.split(" ")):
+                            self.classes.append(value.strip())
 
+        self.find_variable_definitions()
+
+    def find_variable_definitions(self):
+        vars = []
+        for line in self.lines:
+            if line.strip().startswith("def "):
+                continue
+            lmatch = re.findall(r'\b\w+\b\s=\s', line)
+            for m in lmatch:
+                vars.append(str(m[:-2]).strip())
+        self.listbox_vars = list(set(vars))
+        for index, v in enumerate(self.listbox_vars):
+            self.variables_listbox.insert(index, v)
+            
 
     def new_file(self):
         self.text_widget.delete("1.0", tk.END)
@@ -267,6 +391,26 @@ class CodeEditorApp:
 
     def paste_text(self):
         self.text_widget.event_generate("<<Paste>>")
+
+    def add_import(self, name):
+        """ add a new import to highlight syntax for by name """
+
+        def functions(name):
+            try:
+                mod = importlib.import_module(name)
+                module_attrs = dir(mod)
+                class_names = [attr for attr in module_attrs if isinstance(getattr(mod, attr), type)]
+                functs = [attr for attr in module_attrs if callable(getattr(mod, attr))]
+            except:
+                return None
+            return class_names, functs
+        
+        cnames, fnames = functions(name)
+        for cname in cnames:
+            self.classes.append(cname)
+        for fname in fnames:
+            self.funcs.append(fname)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
