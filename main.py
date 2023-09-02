@@ -1,5 +1,5 @@
-from tara.app import TaraCommandLineApp
+from tara.app import CommandLineApp
 
 
 if __name__ == '__main__':
-    app = TaraCommandLineApp()
+    app = CommandLineApp()

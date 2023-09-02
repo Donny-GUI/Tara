@@ -1,6 +1,6 @@
 import ast
 import os
-from tara.util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
+from util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
 
 
 selfflag = False
@@ -172,3 +172,53 @@ def add_type_hints(file_path):
             f.write("from typing import Self\n".encode())
         f.write(modified_code.encode())
 
+def new_file_with_type_hints(file_path:str, output_file_path:str):
+    # open the file and get the content
+    with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
+        code = file.read()
+
+    # attempt to parse the file
+    try:tree = ast.parse(code)
+    except SyntaxError:
+        return
+    
+    # walk the nodes recursively looking for function definitions
+    for node in ast.walk(tree):
+
+        if isinstance(node, ast.FunctionDef):
+            # FOUND Function definition
+
+            # Fix the type hints for the params
+            for arg in node.args.args:
+                if arg.annotation is None:
+                    arg_type_hint = find_type(ast.unparse(arg))
+                    arg_type_hint_node = ast.Name(id=arg_type_hint, ctx=ast.Load())
+                    arg.annotation = arg_type_hint_node
+            
+            # get the return types here
+            if node.returns is None and has_return_statement(node) == True:
+
+                rnodes = find_returned_variables_and_types(node)
+                willreturn = []
+                if rnodes == {}:
+                    node.returns = string_to_return_value("None")
+                else:
+                    for x in rnodes.values():
+                        if x not in willreturn:
+                            willreturn.append(x)
+                    
+                    if len(willreturn) == 1:
+                        node.returns = string_to_return_value(willreturn[0])
+                    else:
+                        node.returns = list_to_return_value(willreturn)
+    
+    try:modified_code = ast.unparse(tree)
+    except AttributeError:
+        print("attribute error")
+        modified_code = backup_generate(tree)
+
+    with open(output_file_path, "wb") as f:
+        global selfflag
+        if selfflag is True:
+            f.write("from typing import Self\n".encode())
+        f.write(modified_code.encode())

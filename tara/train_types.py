@@ -5,11 +5,28 @@ import re
 from tqdm import tqdm
 
 
-def determine_variable_type(value:str):
+def determine_variable_type(value: str) -> str:
+    """
+    Determines the data type of a given value or expression.
+
+    This function takes a string `value` as input and attempts to determine its data type. It considers various
+    possibilities such as literal values, function calls, and more.
+
+    Parameters:
+        value (str): The value or expression whose data type needs to be determined.
+
+    Returns:
+        str: A string representing the determined data type. Possible values include 
+                                                             'str', 'int', 'bool', 'list',
+                                                              'dict', 'bytes', 'bytearray', 
+                                                              'set', 'tuple', or '?' if the type 
+                                                              cannot be determined.
+    """
     try:
         firstchar = value[0]
     except IndexError:
         return "?"
+
     try:
         if value.startswith("input("):
             return "str"
@@ -17,6 +34,7 @@ def determine_variable_type(value:str):
         return str(var_type)[8:-2]
     except:
         pass
+
     if value in ["False", "True"]:
         return "bool"
     if firstchar in "123456789":
@@ -39,7 +57,7 @@ def determine_variable_type(value:str):
         return "set"
     elif value.startswith("(") and "*+-/" not in value:
         return "tuple"
-
+    
 def find_string_variables_in_python_files():
     original_files = [x for x in os.listdir() if os.path.isfile(x)]
     string_variables = {}

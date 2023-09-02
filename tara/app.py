@@ -1,9 +1,10 @@
 import sys 
 from tara.type_hints import add_type_hints
 from tara.train_types import train_model
+from tara.doctor import pull_and_patch_github_repo
 
 
-class TaraCommandLineApp(object):
+class CommandLineApp(object):
 
     commands = ("train", "update", "help", "doctor", "examples")
     flags = ("-h", "-v", "-g")
@@ -48,8 +49,16 @@ class TaraCommandLineApp(object):
             case ("update", "help"):pass
             case ("examples",):pass
             case ("examples", "help"):pass
-            case ("doctor",):pass
+            case ("doctor",):self.doctor_fixes()
             case ("doctor", "help"):pass
+
+    def doctor_fixes(self):
+        print("Check-up initalized")
+        print("rebuilding from source....")
+        pull_and_patch_github_repo()
+        print("Rebuild successfull")
+        print("Retraining your models...")
+        train_model()
 
     def train_model(self):
         train_model()
