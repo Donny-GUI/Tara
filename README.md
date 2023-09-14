@@ -9,14 +9,14 @@ Automate python type hints for params and return values
 ```Powershell
 git clone https://github.com/Donny-GUI/Tara.git
 cd Tara
-python add_type_hints.py <yourfile>
+python main.py <yourfile>
 ```
 
 #### Linux
 ```Bash
 git clone https://github.com/Donny-GUI/Tara.git
 cd Tara
-python3 add_type_hints.py <yourfile>
+python3 main.py <yourfile>
 ```
 
 
