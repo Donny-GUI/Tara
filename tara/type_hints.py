@@ -7,7 +7,7 @@ selfflag = False
 all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
   
 
-def make_type_representation(type:str):
+def make_type_representation(type:str) -> ast.Name:
     """
     Create a type representation for a given type
     """
