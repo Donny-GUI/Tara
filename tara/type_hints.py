@@ -5,36 +5,20 @@ from util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
 
 selfflag = False
 all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
-
-class TypeHintTest:
-    def __init__(self, filepath):
-        self.filepath = filepath
-        self.answers = []
-        self.nodes  = []
-        self.data = []
-        with open(self.filepath, "rb") as f:
-            self.data = f.read().decode()
-        self.nodes = [x for x in self.data if isinstance(x, ast.FunctionDef)]
-        self.sources = [ast.unparse(x) for x in self.nodes]
-        self.uuids = [self.filepath.replace(".", "")+ x.replace(" ",".")[:20] for x in self.sources]
-
-
-class Trainer:
-    responses = ["int", "str", "bool", "float", "complex", "bytes", "bytearray", "dict", "set", "memoryview", "frozenset", "tuple"]
-    def __init__(self) -> None:
-        self.score = 0
-    
-    def analyze_file(self, filename):
-        with open(filename, 'r') as f:
-            content = f.read()
-        
+  
 
 def make_type_representation(type:str):
+    """
+    Create a type representation for a given type
+    """
     if type == "call":
         type = "any"
     return ast.Name(id=type, ctx=ast.Load())
 
-def find_type(name):
+def find_type(name: str) -> str:
+    """ 
+    takes a parameter name and returns a type
+    """
     if name == "self":
         global selfflag
         selfflag = True   
@@ -46,22 +30,31 @@ def find_type(name):
             pass
     return "any"
 
-def has_return_statement(node):
+def has_return_statement(node: ast.AST) -> bool:
+    """
+    determines if a function returns an object or None.
+
+    Parameters:
+      node (ast.AST): any ast.AST but it helps if it is a function definition.
+    
+    Returns: bool -> True if the function returns an object that isnt None
+    """
     for subnode in ast.walk(node):
         if isinstance(subnode, ast.Return):
             return True
     return False
 
-def find_returned_variables_and_types(func):
+def find_returned_variables_and_types(func: ast.AST) -> dict:
     returned_variables = {}
 
     # Define a visitor class to traverse the AST
     class VariableVisitor(ast.NodeVisitor):
-        def __init__(self):
+
+        def __init__(self) -> None:
             self.current_scope = {}
             self.visited_nodes = []
 
-        def visit_Assign(self, node):
+        def visit_Assign(self, node) -> None:
             for target in node.targets:
                 if isinstance(target, ast.Name):
                     self.current_scope[target.id] = node.value
@@ -93,6 +86,9 @@ def find_returned_variables_and_types(func):
     return returned_variables
 
 def backup_generate(tree: ast.AST) -> str:
+    """
+    Returns a rewritten version of the file if the file can not be generated from the ast tree
+    """
     strings = []
     for x in ast.walk(tree):
         try:
@@ -114,6 +110,10 @@ def list_to_return_value(list: list) -> str:
     return ast.parse("|".join(list)).body[0].value
 
 def add_type_hints(file_path:str) -> None:
+    """
+    Add type hints to a python file
+    """
+    
     # open the file and get the content
     with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
         code = file.read()
@@ -159,7 +159,8 @@ def add_type_hints(file_path:str) -> None:
                     else:
                         node.returns = list_to_return_value(willreturn)
     
-    try:modified_code = ast.unparse(tree)
+    try:
+        modified_code = ast.unparse(tree)
     except AttributeError:
         print(file_path)
         print("unable to un parse tree, skipping")
@@ -170,13 +171,15 @@ def add_type_hints(file_path:str) -> None:
     example_dir = os.getcwd() + os.sep + "output"
     example = example_dir + os.sep + file
     os.makedirs(example_dir, exist_ok=True)
+
     with open(example, "wb") as f:
+
         global selfflag
         if selfflag is True:
             f.write("from typing import Self\n".encode())
         f.write(modified_code.encode())
 
-def new_file_with_type_hints(file_path:str, output_file_path:str):
+def new_file_with_type_hints(file_path:str, output_file_path:str) -> None:
     # open the file and get the content
     with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
         code = file.read()
