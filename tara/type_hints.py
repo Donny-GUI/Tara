@@ -92,7 +92,7 @@ def find_returned_variables_and_types(func):
     visitor.visit(func)
     return returned_variables
 
-def backup_generate(tree):
+def backup_generate(tree: ast.AST) -> str:
     strings = []
     for x in ast.walk(tree):
         try:
@@ -104,22 +104,23 @@ def backup_generate(tree):
         strings.append(string)
     return "\n".join(strings)
             
-def string_to_return_value(value):
+def string_to_return_value(value: str):
     """ 
         example: Union[bool, str]
     """
     return ast.parse(value).body[0].value
 
-def list_to_return_value(list):
+def list_to_return_value(list: list) -> str:
     return ast.parse("|".join(list)).body[0].value
 
-def add_type_hints(file_path):
+def add_type_hints(file_path:str) -> None:
     # open the file and get the content
     with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
         code = file.read()
 
     # attempt to parse the file
-    try:tree = ast.parse(code)
+    try:
+        tree = ast.parse(code)
     except SyntaxError:
         print(file_path)
         print("Syntax Error exists in file, skipping...")
@@ -129,23 +130,26 @@ def add_type_hints(file_path):
     for node in ast.walk(tree):
 
         if isinstance(node, ast.FunctionDef):
-            # FOUND Function definition
-
+            # FOUND Function definition &&
             # Fix the type hints for the params
             for arg in node.args.args:
+                
                 if arg.annotation is None:
                     arg_type_hint = find_type(ast.unparse(arg))
                     arg_type_hint_node = ast.Name(id=arg_type_hint, ctx=ast.Load())
                     arg.annotation = arg_type_hint_node
             
-            # get the return types here
+            # " if the ast node does not have a return type and the function that determines if there is a return type, fix the return type "
             if node.returns is None and has_return_statement(node) == True:
 
                 rnodes = find_returned_variables_and_types(node)
+                
                 willreturn = []
+                
                 if rnodes == {}:
                     node.returns = string_to_return_value("None")
                 else:
+                    
                     for x in rnodes.values():
                         if x not in willreturn:
                             willreturn.append(x)

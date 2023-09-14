@@ -213,6 +213,9 @@ def assignment_regex():
     pattern = r'(.+?)\s='
     return re.compile(pattern)
 
+def class_name_regex():
+    pattern = r'(\w+)\.\w+\(\)'
+    return re.compile(pattern)
 
 
 def exact(integer: int):
@@ -273,13 +276,13 @@ class CodeEditorApp:
         self.variables_listbox.grid(column=2, row=1, rowspan=4, sticky="nsew")
 
         self.text_widget.tag_configure("comment", foreground="#009933")
-        self.text_widget.tag_configure("function", foreground="#e6e619")
+        self.text_widget.tag_configure("function", foreground="#FDED2A")
         self.text_widget.tag_configure("keyword", foreground="#a852ff")
         self.text_widget.tag_configure("special", foreground="#527dff")
-        self.text_widget.tag_configure("bracket1", foreground="yellow")
-        self.text_widget.tag_configure("bracket2", foreground="yellow")
-        self.text_widget.tag_configure("quote", foreground="#d87979")
-        self.text_widget.tag_configure("assignment", foreground="#52d4ff")
+        self.text_widget.tag_configure("bracket1", foreground="#FEF590")
+        self.text_widget.tag_configure("bracket2", foreground="#C0B002")
+        self.text_widget.tag_configure("quote", foreground="#FE877C")
+        self.text_widget.tag_configure("assignment", foreground="#CCDAFF")
 
         # Bind the event to trigger syntax highlighting
         self.text_widget.bind("<KeyRelease>", self.syntaxhighlight)
