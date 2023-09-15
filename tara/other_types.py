@@ -1,4 +1,6 @@
-from typing import ( 
+from typing import (
+    
+    # Primitives
     Annotated, 
     Any,
     Callable,
@@ -16,6 +18,8 @@ from typing import (
     TypeVar,
     TypeVarTuple,
     Union,
+
+    # Structural
     Reversible, 
     SupportsAbs, 
     SupportsBytes, 
@@ -24,6 +28,8 @@ from typing import (
     SupportsIndex, 
     SupportsInt, 
     SupportsRound,
+    
+    # Abstract Base
     AbstractSet,
     ByteString,
     Container,
@@ -48,27 +54,25 @@ from typing import (
     Collection,
     AsyncGenerator,
     AsyncContextManager,
+
+    # Concrete Collection
+    ChainMap,
+    Counter,
+    Deque,
+    Dict,
+    DefaultDict,
+    List,
+    OrderedDict,
+    Set,
+    FrozenSet,
+    NamedTuple,
+    TypedDict,
+    Generator,
+
 )
 
 
 class Primitives:
-    Annotated = Annotated
-    Any = Any
-    Callable = Callable
-    ClassVar = ClassVar
-    Concatenate = Concatenate
-    Final = Final
-    ForwardRef = ForwardRef
-    Generic = Generic
-    Literal = Literal
-    Optional = Optional
-    ParamSpec = ParamSpec
-    Protocol = Protocol
-    Tuple = Tuple
-    Type = Type
-    TypeVar = TypeVar
-    TypeVarTuple = TypeVarTuple
-    Union = Union
     ALL = (Annotated, Any, 
            Callable, ClassVar, Concatenate, 
            Final, ForwardRef, 
@@ -90,14 +94,6 @@ class Primitives:
 
 
 class Structural:
-    Reversible      = Reversible
-    SupportsAbs     = SupportsAbs
-    SupportsBytes   = SupportsBytes
-    SupportsComplex = SupportsComplex
-    SupportsFloat   = SupportsFloat
-    SupportsIndex   = SupportsIndex
-    SupportsInt     = SupportsInt
-    SupportsRound   = SupportsRound
     ALL = (
         Reversible,
         SupportsAbs,
@@ -119,32 +115,9 @@ class Structural:
         'SupportsInt',
         'SupportsRound'
     )
+    
 
 class AbstractBase:
-    AbstractSet = AbstractSet
-    ByteString = ByteString
-    Container = Container
-    ContextManager = ContextManager
-    Hashable = Hashable
-    ItemsView = ItemsView
-    Iterable = Iterable
-    Iterator = Iterator
-    KeysView = KeysView
-    Mapping = Mapping
-    MappingView = MappingView
-    MutableMapping = MutableMapping
-    MutableSequence = MutableSequence
-    MutableSet = MutableSet
-    Sequence = Sequence
-    Sized = Sized
-    ValuesView = ValuesView
-    Awaitable = Awaitable
-    AsyncIterator = AsyncIterator
-    AsyncIterable = AsyncIterable
-    Coroutine = Coroutine
-    Collection = Collection
-    AsyncGenerator = AsyncGenerator
-    AsyncContextManager = AsyncContextManager
     ALL = (
         AbstractSet,
         ByteString,
@@ -200,31 +173,43 @@ class AbstractBase:
     )
 
 
-
-
 class ConcreteCollection:
-    
+    ALL = (
+        ChainMap,
+        Counter,
+        Deque,
+        Dict,
+        DefaultDict,
+        List,
+        OrderedDict,
+        Set,
+        FrozenSet,
+        NamedTuple,
+        TypedDict,
+        Generator,
+    )
+    STRINGS = (
+        # Concrete collection types.
+        'ChainMap',
+        'Counter',
+        'Deque',
+        'Dict',
+        'DefaultDict',
+        'List',
+        'OrderedDict',
+        'Set',
+        'FrozenSet',
+        'NamedTuple',  # Not really a type.
+        'TypedDict',  # Not really a type.
+        'Generator',
+        # Other concrete types.
+        'BinaryIO',
+        'IO',
+        'Match',
+        'Pattern',
+        'TextIO'
+    )
 
-ConcreteCollections = [
-    # Concrete collection types.
-    'ChainMap',
-    'Counter',
-    'Deque',
-    'Dict',
-    'DefaultDict',
-    'List',
-    'OrderedDict',
-    'Set',
-    'FrozenSet',
-    'NamedTuple',  # Not really a type.
-    'TypedDict',  # Not really a type.
-    'Generator',
-    # Other concrete types.
-    'BinaryIO',
-    'IO',
-    'Match',
-    'Pattern',
-    'TextIO']
 
 OneOffs = [
     # One-off things.
