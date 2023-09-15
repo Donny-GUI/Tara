@@ -105,7 +105,6 @@ class Structural:
         SupportsRound,
     )
     STRINGS = (
-        # Structural checks, a.k.a. protocols.
         'Reversible',
         'SupportsAbs',
         'SupportsBytes',
@@ -115,7 +114,11 @@ class Structural:
         'SupportsInt',
         'SupportsRound'
     )
-    
+
+
+class Protocol(Structural):
+    pass 
+
 
 class AbstractBase:
     ALL = (
