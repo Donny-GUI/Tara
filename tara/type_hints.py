@@ -207,9 +207,12 @@ def new_file_with_type_hints(file_path:str, output_file_path:str) -> None:
 
                 rnodes = find_returned_variables_and_types(node)
                 willreturn = []
+
                 if rnodes == {}:
                     node.returns = string_to_return_value("None")
+                    
                 else:
+
                     for x in rnodes.values():
                         if x not in willreturn:
                             willreturn.append(x)
