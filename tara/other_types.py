@@ -1,3 +1,4 @@
+import ast
 from typing import (
     
     # Primitives
@@ -357,17 +358,49 @@ def isother(object: any) -> bool:
     """
     if isprimitive(object):
         return True
-    elif isstructural(object):
+    if isstructural(object):
         return True
-    elif isabstract(object):
+    if isabstract(object):
         return True
-    elif isconcrete(object):
+    if isconcrete(object):
         return True
-    else:
-        return False
+    return False
     
+def check_typing_import(filepath: str) -> bool:
+    """ 
+    Returns True if the given filepath imports anything from typing.
+    Returns False if the given filepath does not import anything from typing.
 
+    Warning: if this function cannot parse the python tree, lets say becuase its a cpp file...
+             then it will return False. I dont see a problem with this yet.
+    """
+    
+    with open(filepath, 'rb') as bf:
+        try:
+            content = bf.read()
+        except:
+            raise UnicodeDecodeError
+    
+    try:
+        tree = ast.parse(content)
+    except:
+        if filepath.endswith('.py'):
+            raise Exception(f"Could not parse {filepath}")
+        return False
 
+    for node in ast.walk(tree):
+        
+        if isinstance(node, ast.ImportFrom):
+            if node.module == "typing":
+                return True
+            
+        if isinstance(node, ast.Import):
+            for subnode in ast.walk(node):
+                if isinstance(subnode, ast.alias) and ast.unparse(subnode) == "typing":
+                    return True
+    
+    return False
 
-
+def atest():    
+    print(check_typing_import(__file__))
 
