@@ -69,6 +69,38 @@ from typing import (
     TypedDict,
     Generator,
 
+    # Uniques 
+    AnyStr,
+    assert_type,
+    assert_never,
+    cast,
+    clear_overloads,
+    dataclass_transform,
+    final,
+    get_args,
+    get_origin,
+    get_overloads,
+    get_type_hints,
+    is_typeddict,
+    LiteralString,
+    Never,
+    NewType,
+    no_type_check,
+    no_type_check_decorator,
+    NoReturn,
+    NotRequired,
+    overload,
+    ParamSpecArgs,
+    ParamSpecKwargs,
+    Required,
+    reveal_type,
+    runtime_checkable,
+    Self,
+    Text,
+    TYPE_CHECKING,
+    TypeAlias,
+    TypeGuard,
+    Unpack,
 )
 
 
@@ -214,39 +246,128 @@ class ConcreteCollection:
     )
 
 
-OneOffs = [
-    # One-off things.
-    'AnyStr',
-    'assert_type',
-    'assert_never',
-    'cast',
-    'clear_overloads',
-    'dataclass_transform',
-    'final',
-    'get_args',
-    'get_origin',
-    'get_overloads',
-    'get_type_hints',
-    'is_typeddict',
-    'LiteralString',
-    'Never',
-    'NewType',
-    'no_type_check',
-    'no_type_check_decorator',
-    'NoReturn',
-    'NotRequired',
-    'overload',
-    'ParamSpecArgs',
-    'ParamSpecKwargs',
-    'Required',
-    'reveal_type',
-    'runtime_checkable',
-    'Self',
-    'Text',
-    'TYPE_CHECKING',
-    'TypeAlias',
-    'TypeGuard',
-    'Unpack']
+class Unique:
+    ALL = (
+        AnyStr,
+        assert_type,
+        assert_never,
+        cast,
+        clear_overloads,
+        dataclass_transform,
+        final,
+        get_args,
+        get_origin,
+        get_overloads,
+        get_type_hints,
+        is_typeddict,
+        LiteralString,
+        Never,
+        NewType,
+        no_type_check,
+        no_type_check_decorator,
+        NoReturn,
+        NotRequired,
+        overload,
+        ParamSpecArgs,
+        ParamSpecKwargs,
+        Required,
+        reveal_type,
+        runtime_checkable,
+        Self,
+        Text,
+        TYPE_CHECKING,
+        TypeAlias,
+        TypeGuard,
+        Unpack,
+    )
+    STRINGS = (
+        # One-off things.
+        'AnyStr',
+        'assert_type',
+        'assert_never',
+        'cast',
+        'clear_overloads',
+        'dataclass_transform',
+        'final',
+        'get_args',
+        'get_origin',
+        'get_overloads',
+        'get_type_hints',
+        'is_typeddict',
+        'LiteralString',
+        'Never',
+        'NewType',
+        'no_type_check',
+        'no_type_check_decorator',
+        'NoReturn',
+        'NotRequired',
+        'overload',
+        'ParamSpecArgs',
+        'ParamSpecKwargs',
+        'Required',
+        'reveal_type',
+        'runtime_checkable',
+        'Self',
+        'Text',
+        'TYPE_CHECKING',
+        'TypeAlias',
+        'TypeGuard',
+        'Unpack')
+
+
+def isprimitive(object: any) -> bool:
+    """
+    Check if object is structural type object 
+    """
+    for obj in Primitives.ALL:
+        if isinstance(object, obj):
+            return True
+    return False
+
+def isstructural(object: any) -> bool:
+    """
+    Check if object is structural type object 
+    """
+    for obj in Structural.ALL:
+        if isinstance(object, obj):
+            return True
+    return False
+
+def isabstract(object: any) -> bool:
+    """
+    check if an object is an Abstract Base Class Type object
+    """
+    for obj in AbstractBase.ALL:
+        if isinstance(object, obj):
+            return True
+    return False
+
+def isconcrete(object: any) -> bool:
+    """
+    Check if object is a concrete collection type object 
+    """
+    for obj in ConcreteCollection.ALL:
+        if isinstance(object, obj):
+            return True
+    return False
+
+def isother(object: any) -> bool:
+    """
+    check if an object is an other-ly type object
+    """
+    if isprimitive(object):
+        return True
+    elif isstructural(object):
+        return True
+    elif isabstract(object):
+        return True
+    elif isconcrete(object):
+        return True
+    else:
+        return False
+    
+
+
 
 
 
