@@ -353,4 +353,3 @@ def test():
     sen = Sentence("This code extends the previous example by adding functionality to determine word count")
     sen.compare("Adjust the input_str variable to analyze different strings. Keep in mind that identifying words, numbers, and built-in names might have various interpretations and requirements based on your specific needs.")
     
-test()
