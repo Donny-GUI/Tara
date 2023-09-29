@@ -103,7 +103,7 @@ def find_returned_variables_and_types(func: ast.AST) -> dict:
 
 def backup_generate(tree: ast.AST) -> str:
     """
-    Returns a rewritten version of the file if the file can not be generated from the ast tree
+    Returns a rewritten version of the file IF the file CANNOT be generated from the ast tree
     """
     strings = []
     for x in ast.walk(tree):
@@ -124,6 +124,25 @@ def string_to_return_value(value: str):
 
 def list_to_return_value(list: list) -> str:
     return ast.parse("|".join(list)).body[0].value
+
+def create_modified_code(tree, file_path) -> str:
+    try:
+        modified_code = ast.unparse(tree)
+    except AttributeError:
+        print(file_path)
+        print("unable to un parse tree, skipping")
+        print("attempting backup generator...")
+        modified_code = backup_generate(tree)
+    finally:
+        return modified_code 
+
+def ensure_save_directory(file_path:str):
+    """ UNUSED """
+    file = os.path.basename(file_path)
+    example_dir = os.getcwd() + os.sep + "output"
+    os.makedirs(example_dir, exist_ok=True)
+    return example_dir + os.sep + file
+
 
 def add_type_hints(file_path:str) -> None:
     """
@@ -166,7 +185,6 @@ def add_type_hints(file_path:str) -> None:
                 if rnodes == {}:
                     node.returns = string_to_return_value("None")
                 else:
-                    
                     for x in rnodes.values():
                         if x not in willreturn:
                             willreturn.append(x)
@@ -177,14 +195,9 @@ def add_type_hints(file_path:str) -> None:
                     else:
                         node.returns = list_to_return_value(willreturn)
     
-    try:
-        modified_code = ast.unparse(tree)
-    except AttributeError:
-        print(file_path)
-        print("unable to un parse tree, skipping")
-        print("attempting backup generator...")
-        modified_code = backup_generate(tree)
+    modified_code = create_modified_code(tree, file_path)
     
+    # ensure_save_directory would go here
     file = os.path.basename(file_path)
     example_dir = os.getcwd() + os.sep + "output"
     example = example_dir + os.sep + file
