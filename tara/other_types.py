@@ -371,7 +371,7 @@ def check_typing_import(filepath: str) -> bool:
     Returns True if the given filepath imports anything from typing.
     Returns False if the given filepath does not import anything from typing.
 
-    Warning: if this function cannot parse the python tree, lets say becuase its a cpp file...
+    Warning: if this function cannot parse the python tree, lets say because its a cpp file...
              then it will return False. I dont see a problem with this yet.
     """
     

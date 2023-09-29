@@ -3,9 +3,14 @@ import os
 from util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
 
 
+# Global Flags
+
 selfflag = False
+
+# Global Collections
+
 all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
-  
+
 
 def make_type_representation(type:str) -> ast.Name:
     """
@@ -99,7 +104,7 @@ def backup_generate(tree: ast.AST) -> str:
                 strings.append(string)
         strings.append(string)
     return "\n".join(strings)
-            
+
 def string_to_return_value(value: str):
     """ 
         example: Union[bool, str]
@@ -134,6 +139,7 @@ def add_type_hints(file_path:str) -> None:
             # Fix the type hints for the params
             for arg in node.args.args:
                 
+                # If no annonation exists we will have to create them
                 if arg.annotation is None:
                     arg_type_hint = find_type(ast.unparse(arg))
                     arg_type_hint_node = ast.Name(id=arg_type_hint, ctx=ast.Load())
@@ -154,6 +160,7 @@ def add_type_hints(file_path:str) -> None:
                         if x not in willreturn:
                             willreturn.append(x)
                     
+                    # count the number of returned items (which is a set to a list). If greater than one, use the list to return function, else use the string version. 
                     if len(willreturn) == 1:
                         node.returns = string_to_return_value(willreturn[0])
                     else:
@@ -166,7 +173,7 @@ def add_type_hints(file_path:str) -> None:
         print("unable to un parse tree, skipping")
         print("attempting backup generator...")
         modified_code = backup_generate(tree)
-        
+    
     file = os.path.basename(file_path)
     example_dir = os.getcwd() + os.sep + "output"
     example = example_dir + os.sep + file
@@ -174,6 +181,7 @@ def add_type_hints(file_path:str) -> None:
 
     with open(example, "wb") as f:
 
+        # ask if selfflag exists in order to write the typing import
         global selfflag
         if selfflag is True:
             f.write("from typing import Self\n".encode())
