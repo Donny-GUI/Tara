@@ -1,5 +1,4 @@
-import ast
-import os
+
 import re
 
 # tracking and getting information about variables
