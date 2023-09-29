@@ -15,6 +15,12 @@ all_dicts = [StringMap, IntMap, BoolMap, ListMap, DictMap, BytesMap]
 def make_type_representation(type:str) -> ast.Name:
     """
     Create a type representation for a given type
+    NOTE:
+        This ensures that the ast.Module can 
+        be reparsed/unparsed into readable python
+
+    Returns:
+        ast.Name: the ast representation of the type to return. 
     """
     if type == "call":
         type = "any"
@@ -28,11 +34,14 @@ def find_type(name: str) -> str:
         global selfflag
         selfflag = True   
         return "Self"
+    
+    global all_dicts
     for dict in all_dicts:
         try:
             return dict[name]
         except:
             pass
+    
     return "any"
 
 def has_return_statement(node: ast.AST) -> bool:
@@ -59,13 +68,15 @@ def find_returned_variables_and_types(func: ast.AST) -> dict:
             self.current_scope = {}
             self.visited_nodes = []
 
-        def visit_Assign(self, node) -> None:
+        def visit_Assign(self, node: ast.Assign) -> None:
+
             for target in node.targets:
                 if isinstance(target, ast.Name):
                     self.current_scope[target.id] = node.value
             self.generic_visit(node)
 
-        def visit_Return(self, node):
+        def visit_Return(self, node: ast.Return):
+            
             if node.value and isinstance(node.value, ast.Name):
                 variable_name = node.value.id
                 if variable_name in self.current_scope:
