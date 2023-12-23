@@ -1,6 +1,6 @@
 import ast
 import os
-from util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
+from tara.util import BoolMap, StringMap, DictMap, ListMap, IntMap, BytesMap
 
 
 # Global Flags
@@ -150,8 +150,12 @@ def add_type_hints(file_path:str) -> None:
     """
     
     # open the file and get the content
-    with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
-        code = file.read()
+    try:
+        with open(file_path, 'r', encoding="utf-8", errors="ignore") as file:
+            code = file.read()
+    except FileNotFoundError as fnfe:
+        print("Could not open and read file: %s" % file_path)
+        exit()
 
     # attempt to parse the file
     try:
